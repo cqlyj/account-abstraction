@@ -2,7 +2,7 @@
 
 import {IAccount, Transaction, MemoryTransactionHelper, ACCOUNT_VALIDATION_SUCCESS_MAGIC} from "lib/foundry-era-contracts/src/system-contracts/contracts/interfaces/IAccount.sol";
 import {SystemContractsCaller} from "lib/foundry-era-contracts/src/system-contracts/contracts/libraries/SystemContractsCaller.sol";
-import {NONCE_HOLDER_SYSTEM_CONTRACT} from "lib/foundry-era-contracts/src/system-contracts/contracts/Constants.sol";
+import {NONCE_HOLDER_SYSTEM_CONTRACT, BOOTLOADER_FORMAL_ADDRESS} from "lib/foundry-era-contracts/src/system-contracts/contracts/Constants.sol";
 import {INonceHolder} from "lib/foundry-era-contracts/src/system-contracts/contracts/interfaces/INonceHolder.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
@@ -29,6 +29,18 @@ contract ZKMinimalAccount is IAccount, Ownable {
     using MemoryTransactionHelper for Transaction;
 
     error ZKMinimalAccount__NotEnoughBalance();
+    error ZKMinimalAccount__NotFromBootloader();
+
+    /*//////////////////////////////////////////////////////////////
+                               MODIFIERS
+    //////////////////////////////////////////////////////////////*/
+
+    modifier requireFromBootLoader() {
+        if (msg.sender != BOOTLOADER_FORMAL_ADDRESS) {
+            revert ZKMinimalAccount__NotFromBootloader();
+        }
+        _;
+    }
 
     constructor() Ownable(msg.sender) {}
 
@@ -45,7 +57,7 @@ contract ZKMinimalAccount is IAccount, Ownable {
         bytes32 /*_txHash*/,
         bytes32 /*_suggestedSignedHash*/,
         Transaction memory _transaction
-    ) external payable returns (bytes4 magic) {
+    ) external payable requireFromBootLoader returns (bytes4 magic) {
         // call nonce holder => system contract call
         // increase the nonce
         SystemContractsCaller.systemCallWithPropagatedRevert(
