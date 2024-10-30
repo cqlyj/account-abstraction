@@ -2,6 +2,7 @@
 cache/
 out/
 zkout/
+node_modules/
 
 # Ignores development broadcast logs
 !/broadcast
@@ -13,3 +14,4 @@ docs/
 
 # Dotenv file
 .env
+.encryptedKey.json
