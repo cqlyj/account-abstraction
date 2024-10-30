@@ -92,12 +92,12 @@ contract ZkMinimalAccountTest is Test {
         bytes32 unsignedTransactionHash = MemoryTransactionHelper.encodeHash(
             transaction
         );
-        bytes32 digest = unsignedTransactionHash.toEthSignedMessageHash();
+        // bytes32 digest = unsignedTransactionHash.toEthSignedMessageHash();
         uint8 v;
         bytes32 r;
         bytes32 s;
         uint256 ANVIL_DEFAILT_KEY = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
-        (v, r, s) = vm.sign(ANVIL_DEFAILT_KEY, digest);
+        (v, r, s) = vm.sign(ANVIL_DEFAILT_KEY, unsignedTransactionHash);
 
         Transaction memory signedTransaction = transaction;
         signedTransaction.signature = abi.encodePacked(r, s, v);
